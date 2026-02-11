@@ -2,8 +2,8 @@
 function logEvent(action, detail = "") {
   if (!window.db) return;
   db.collection("events").add({
-    action: action,
-    detail: detail,
+    action,
+    detail,
     time: new Date()
   });
 }
@@ -33,13 +33,21 @@ const quotes = [
 quotesBox.style.display = "none";
 nextQuoteBtn.style.display = "none";
 
-// ================= NO BUTTON LOGIC =================
+// ================= NO BUTTON (SAFE ESCAPE) =================
 noBtn.addEventListener("mouseover", () => {
   if (storyStarted) return;
   if (escapeCount >= 3) return;
 
-  const x = Math.random() * (window.innerWidth - 120);
-  const y = Math.random() * (window.innerHeight - 60);
+  const bodyRect = document.body.getBoundingClientRect();
+
+  // Safe movement area (lower half, away from text)
+  const minX = 20;
+  const maxX = bodyRect.width - 140;
+  const minY = bodyRect.height * 0.55;
+  const maxY = bodyRect.height - 100;
+
+  const x = Math.random() * (maxX - minX) + minX;
+  const y = Math.random() * (maxY - minY) + minY;
 
   noBtn.style.position = "absolute";
   noBtn.style.left = `${x}px`;
@@ -60,31 +68,33 @@ yesBtn.addEventListener("click", () => {
   startStory();
 });
 
-// ================= AFTER 3 NO CLICKS =================
+// ================= NO CLICK (START STORY AFTER 3) =================
 noBtn.addEventListener("click", () => {
+  if (storyStarted) return;
+
   escapeCount++;
   logEvent("NO_CLICKED", `Count ${escapeCount}`);
 
-  if (escapeCount >= 3 && !storyStarted) {
+  if (escapeCount >= 3) {
     startStory();
   }
 });
 
 // ================= STORY START =================
 function startStory() {
+  if (storyStarted) return;
   storyStarted = true;
 
   questionText.innerText = "Just read this once…";
   quotesBox.style.display = "block";
   nextQuoteBtn.style.display = "inline-block";
 
+  quoteIndex = 0;
   showNextQuote();
 }
 
 // ================= NEXT QUOTE =================
-nextQuoteBtn.addEventListener("click", () => {
-  showNextQuote();
-});
+nextQuoteBtn.addEventListener("click", showNextQuote);
 
 function showNextQuote() {
   if (quoteIndex < quotes.length) {
@@ -92,7 +102,7 @@ function showNextQuote() {
     logEvent("QUOTE_SHOWN", quotes[quoteIndex]);
     quoteIndex++;
   } else {
-    // FINAL END — NO UNDEFINED EVER
+    // Final safe end (no undefined)
     quoteText.innerText =
       "That’s all I wanted to say 🙂\n\nWill you be my Valentine? ❤️";
     nextQuoteBtn.style.display = "none";
