@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Just One Question ❤️</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <h1>Will you be my Valentine? 💖</h1>
+
+    <button id="yesBtn">Yes 💕</button>
+    <button id="noBtn">No 💔</button>
+
+    <div id="quotesBox" class="hidden">
+      <p id="quoteText"></p>
+      <button id="nextQuote">Next</button>
+    </div>
+  </div>
+
+  <!-- ✅ Firebase COMPAT SDKs (CORRECT & STABLE) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <!-- ✅ Firebase initialization -->
+  <script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAnRndCiLWfAwuL6hnO0lgKzcO56oEpNcw",
+  authDomain: "valentine-tracker-fa55c.firebaseapp.com",
+  projectId: "valentine-tracker-fa55c",
+  storageBucket: "valentine-tracker-fa55c.firebasestorage.app",
+  messagingSenderId: "831740227967",
+  appId: "1:831740227967:web:aa2138fd9fe468593fea4a"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    window.db = firebase.firestore();
+  </script>
+
+  <!-- ✅ Your logic -->
+  <script src="script.js"></script>
+</body>
+</html>
