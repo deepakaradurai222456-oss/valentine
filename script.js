@@ -1,4 +1,4 @@
-// ---------- FIRESTORE LOG HELPER ----------
+// ================= FIRESTORE LOGGER =================
 function logEvent(action, detail = "") {
   if (!window.db) return;
   db.collection("events").add({
@@ -8,18 +8,20 @@ function logEvent(action, detail = "") {
   });
 }
 
-// ---------- ELEMENTS ----------
-const noBtn = document.getElementById("noBtn");
+// ================= ELEMENTS =================
 const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
+const questionText = document.getElementById("question");
 const quotesBox = document.getElementById("quotesBox");
 const quoteText = document.getElementById("quoteText");
-const nextQuote = document.getElementById("nextQuote");
+const nextQuoteBtn = document.getElementById("nextQuote");
 
-// ---------- STATE ----------
+// ================= STATE =================
 let escapeCount = 0;
 let quoteIndex = 0;
+let storyStarted = false;
 
-// ---------- QUOTES (EDIT FREELY) ----------
+// ================= QUOTES =================
 const quotes = [
   "I saved these words because every one of them reminded me of you.",
   "Some people arrive quietly and change everything.",
@@ -27,53 +29,73 @@ const quotes = [
   "Even ordinary days feel special when I think of you."
 ];
 
-// ---------- PAGE LOAD ----------
-window.addEventListener("load", () => {
-  logEvent("PAGE_OPENED");
+// ================= INITIAL UI =================
+quotesBox.style.display = "none";
+nextQuoteBtn.style.display = "none";
+
+// ================= NO BUTTON LOGIC =================
+noBtn.addEventListener("mouseover", () => {
+  if (storyStarted) return;
+  if (escapeCount >= 3) return;
+
+  const x = Math.random() * (window.innerWidth - 120);
+  const y = Math.random() * (window.innerHeight - 60);
+
+  noBtn.style.position = "absolute";
+  noBtn.style.left = `${x}px`;
+  noBtn.style.top = `${y}px`;
+
+  escapeCount++;
+  logEvent("NO_HOVER", `Escape ${escapeCount}`);
 });
 
-// ---------- NO BUTTON RUNS AWAY ----------
+// ================= YES BUTTON =================
+yesBtn.addEventListener("click", () => {
+  logEvent("YES_CLICKED", "Accepted");
+
+  questionText.innerText = "You just made this moment special 💖";
+  yesBtn.style.display = "none";
+  noBtn.style.display = "none";
+
+  startStory();
+});
+
+// ================= AFTER 3 NO CLICKS =================
 noBtn.addEventListener("click", () => {
-  if (escapeCount < 3) {
-    const x = Math.random() * (window.innerWidth - 120);
-    const y = Math.random() * (window.innerHeight - 120);
+  escapeCount++;
+  logEvent("NO_CLICKED", `Count ${escapeCount}`);
 
-    noBtn.style.position = "absolute";
-    noBtn.style.left = `${x}px`;
-    noBtn.style.top = `${y}px`;
-
-    escapeCount++;
-    logEvent("NO_ESCAPED", `count=${escapeCount}`);
-  }
-
-  if (escapeCount === 3) {
-    showQuotes();
+  if (escapeCount >= 3 && !storyStarted) {
+    startStory();
   }
 });
 
-// ---------- SHOW QUOTES ----------
-function showQuotes() {
-  quotesBox.classList.remove("hidden");
-  quoteText.innerText = quotes[quoteIndex];
-  logEvent("QUOTES_OPENED");
+// ================= STORY START =================
+function startStory() {
+  storyStarted = true;
+
+  questionText.innerText = "Just read this once…";
+  quotesBox.style.display = "block";
+  nextQuoteBtn.style.display = "inline-block";
+
+  showNextQuote();
 }
 
-// ---------- NEXT QUOTE ----------
-nextQuote.addEventListener("click", () => {
-  quoteIndex++;
+// ================= NEXT QUOTE =================
+nextQuoteBtn.addEventListener("click", () => {
+  showNextQuote();
+});
 
+function showNextQuote() {
   if (quoteIndex < quotes.length) {
     quoteText.innerText = quotes[quoteIndex];
-    logEvent("QUOTE_VIEWED", `index=${quoteIndex}`);
+    logEvent("QUOTE_SHOWN", quotes[quoteIndex]);
+    quoteIndex++;
   } else {
-    quoteText.innerText = "That’s all I wanted you to see ❤️";
-    nextQuote.style.display = "none";
-    logEvent("QUOTES_COMPLETED");
+    // FINAL END — NO UNDEFINED EVER
+    quoteText.innerText =
+      "That’s all I wanted to say 🙂\n\nWill you be my Valentine? ❤️";
+    nextQuoteBtn.style.display = "none";
+    logEvent("STORY_END", "Completed");
   }
-});
-
-// ---------- YES CLICK ----------
-yesBtn.addEventListener("click", () => {
-  logEvent("YES_CLICKED");
-  alert("💖 You just made my day 💖");
-});
+}
