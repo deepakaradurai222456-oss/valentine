@@ -33,14 +33,17 @@ const quotes = [
 quotesBox.style.display = "none";
 nextQuoteBtn.style.display = "none";
 
-// ================= NO BUTTON (SAFE ESCAPE) =================
+// ================= NO BUTTON (ONLY HOVER COUNTS) =================
 noBtn.addEventListener("mouseover", () => {
   if (storyStarted) return;
-  if (escapeCount >= 3) return;
+  if (escapeCount >= 3) {
+    startStory();
+    return;
+  }
 
   const bodyRect = document.body.getBoundingClientRect();
 
-  // Safe movement area (lower half, away from text)
+  // Safe movement area (lower half)
   const minX = 20;
   const maxX = bodyRect.width - 140;
   const minY = bodyRect.height * 0.55;
@@ -54,7 +57,7 @@ noBtn.addEventListener("mouseover", () => {
   noBtn.style.top = `${y}px`;
 
   escapeCount++;
-  logEvent("NO_HOVER", `Escape ${escapeCount}`);
+  logEvent("NO_ESCAPED", `Escape ${escapeCount}`);
 });
 
 // ================= YES BUTTON =================
@@ -68,23 +71,12 @@ yesBtn.addEventListener("click", () => {
   startStory();
 });
 
-// ================= NO CLICK (START STORY AFTER 3) =================
-noBtn.addEventListener("click", () => {
-  if (storyStarted) return;
-
-  escapeCount++;
-  logEvent("NO_CLICKED", `Count ${escapeCount}`);
-
-  if (escapeCount >= 3) {
-    startStory();
-  }
-});
-
 // ================= STORY START =================
 function startStory() {
   if (storyStarted) return;
   storyStarted = true;
 
+  noBtn.style.display = "none";
   questionText.innerText = "Just read this once…";
   quotesBox.style.display = "block";
   nextQuoteBtn.style.display = "inline-block";
@@ -102,7 +94,6 @@ function showNextQuote() {
     logEvent("QUOTE_SHOWN", quotes[quoteIndex]);
     quoteIndex++;
   } else {
-    // Final safe end (no undefined)
     quoteText.innerText =
       "That’s all I wanted to say 🙂\n\nWill you be my Valentine? ❤️";
     nextQuoteBtn.style.display = "none";
