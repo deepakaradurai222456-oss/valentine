@@ -33,38 +33,39 @@ const quotes = [
 quotesBox.style.display = "none";
 nextQuoteBtn.style.display = "none";
 
-// ================= NO BUTTON (ONLY HOVER COUNTS) =================
-noBtn.addEventListener("mouseover", () => {
+// ================= NO BUTTON (CLICK ONLY) =================
+noBtn.addEventListener("click", () => {
   if (storyStarted) return;
-  if (escapeCount >= 3) {
-    startStory();
-    return;
-  }
-
-  const bodyRect = document.body.getBoundingClientRect();
-
-  // Safe movement area (lower half)
-  const minX = 20;
-  const maxX = bodyRect.width - 140;
-  const minY = bodyRect.height * 0.55;
-  const maxY = bodyRect.height - 100;
-
-  const x = Math.random() * (maxX - minX) + minX;
-  const y = Math.random() * (maxY - minY) + minY;
-
-  noBtn.style.position = "absolute";
-  noBtn.style.left = `${x}px`;
-  noBtn.style.top = `${y}px`;
 
   escapeCount++;
-  logEvent("NO_ESCAPED", `Escape ${escapeCount}`);
+  logEvent("NO_CLICK", `Count ${escapeCount}`);
+
+  if (escapeCount < 4) {
+    // Move NO button
+    const bodyRect = document.body.getBoundingClientRect();
+
+    const minX = 20;
+    const maxX = bodyRect.width - 140;
+    const minY = bodyRect.height * 0.55;
+    const maxY = bodyRect.height - 100;
+
+    const x = Math.random() * (maxX - minX) + minX;
+    const y = Math.random() * (maxY - minY) + minY;
+
+    noBtn.style.position = "absolute";
+    noBtn.style.left = `${x}px`;
+    noBtn.style.top = `${y}px`;
+  } else {
+    // Start story after 3 escapes
+    startStory();
+  }
 });
 
 // ================= YES BUTTON =================
 yesBtn.addEventListener("click", () => {
-  logEvent("YES_CLICKED", "Accepted");
+  logEvent("YES_CLICKED");
 
-  questionText.innerText = "You just made this moment special 💖";
+  questionText.innerText = "You just made my day 💖";
   yesBtn.style.display = "none";
   noBtn.style.display = "none";
 
@@ -77,6 +78,7 @@ function startStory() {
   storyStarted = true;
 
   noBtn.style.display = "none";
+
   questionText.innerText = "Just read this once…";
   quotesBox.style.display = "block";
   nextQuoteBtn.style.display = "inline-block";
@@ -97,6 +99,6 @@ function showNextQuote() {
     quoteText.innerText =
       "That’s all I wanted to say 🙂\n\nWill you be my Valentine? ❤️";
     nextQuoteBtn.style.display = "none";
-    logEvent("STORY_END", "Completed");
+    logEvent("STORY_END");
   }
 }
