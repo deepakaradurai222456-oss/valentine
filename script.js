@@ -1,4 +1,5 @@
 // ================= FIRESTORE LOGGER =================
+// ================= FIRESTORE LOGGER =================
 function logEvent(action, detail = "") {
   if (!window.db) return;
   db.collection("events").add({
@@ -17,7 +18,7 @@ const quoteText = document.getElementById("quoteText");
 const nextQuoteBtn = document.getElementById("nextQuote");
 
 // ================= STATE =================
-let escapeCount = 0;
+let noCount = 0;
 let quoteIndex = 0;
 let storyStarted = false;
 
@@ -33,34 +34,6 @@ const quotes = [
 quotesBox.style.display = "none";
 nextQuoteBtn.style.display = "none";
 
-// ================= NO BUTTON (CLICK ONLY) =================
-noBtn.addEventListener("click", () => {
-  if (storyStarted) return;
-
-  escapeCount++;
-  logEvent("NO_CLICK", `Count ${escapeCount}`);
-
-  if (escapeCount < 4) {
-    // Move NO button
-    const bodyRect = document.body.getBoundingClientRect();
-
-    const minX = 20;
-    const maxX = bodyRect.width - 140;
-    const minY = bodyRect.height * 0.55;
-    const maxY = bodyRect.height - 100;
-
-    const x = Math.random() * (maxX - minX) + minX;
-    const y = Math.random() * (maxY - minY) + minY;
-
-    noBtn.style.position = "absolute";
-    noBtn.style.left = `${x}px`;
-    noBtn.style.top = `${y}px`;
-  } else {
-    // Start story after 3 escapes
-    startStory();
-  }
-});
-
 // ================= YES BUTTON =================
 yesBtn.addEventListener("click", () => {
   logEvent("YES_CLICKED");
@@ -70,6 +43,24 @@ yesBtn.addEventListener("click", () => {
   noBtn.style.display = "none";
 
   startStory();
+});
+
+// ================= NO BUTTON (MOBILE-SAFE) =================
+noBtn.addEventListener("click", () => {
+  if (storyStarted) return;
+
+  noCount++;
+  logEvent("NO_CLICKED", `Count ${noCount}`);
+
+  if (noCount < 3) {
+    // Gentle feedback instead of moving
+    questionText.innerText =
+      noCount === 1
+        ? "Are you sure? 🙂"
+        : "Still thinking? 😄";
+  } else {
+    startStory();
+  }
 });
 
 // ================= STORY START =================
